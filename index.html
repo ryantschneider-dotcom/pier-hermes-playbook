@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hermes Playbook — PIER Commercial Website Build Process</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:      #CB521E;
+      --orange-dark: #a84218;
+      --orange-light:#e8693a;
+      --orange-bg:   #fff8f5;
+      --navy:        #0d1b2a;
+      --navy-mid:    #1a2e42;
+      --white:       #ffffff;
+      --off-white:   #f8f6f3;
+      --light-gray:  #f0ede8;
+      --mid-gray:    #e0dbd4;
+      --text-dark:   #1a1a1a;
+      --text-mid:    #4a4a4a;
+      --text-light:  #7a7a7a;
+      --sidebar-w:   280px;
+      --green:       #2e7d32;
+      --green-bg:    #f1f8f1;
+      --red:         #c62828;
+      --red-bg:      #fff5f5;
+      --blue:        #1565c0;
+      --blue-bg:     #f0f4ff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-dark);
+      background: var(--off-white);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 100;
+      border-right: 3px solid var(--orange);
+    }
+
+    .sidebar-header {
+      padding: 1.75rem 1.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--orange);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.3;
+    }
+
+    .sidebar-brand span {
+      display: block;
+      color: var(--orange-light);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      margin-top: 1px;
+    }
+
+    .sidebar-tag {
+      display: inline-block;
+      background: rgba(203,82,30,0.25);
+      border: 1px solid rgba(203,82,30,0.5);
+      color: var(--orange-light);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 3px;
+    }
+
+    .sidebar-nav {
+      padding: 1.25rem 0;
+      flex: 1;
+    }
+
+    .nav-group-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding: 0.75rem 1.5rem 0.4rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.6rem 1.5rem;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--white);
+      background: rgba(255,255,255,0.05);
+      border-left-color: rgba(203,82,30,0.5);
+    }
+
+    .nav-item.active {
+      color: var(--white);
+      background: rgba(203,82,30,0.15);
+      border-left-color: var(--orange);
+    }
+
+    .nav-step {
+      width: 20px;
+      height: 20px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-step {
+      background: var(--orange);
+      color: white;
+    }
+
+    .sidebar-footer {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sidebar-footer-text {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.3);
+      line-height: 1.6;
+    }
+
+    .sidebar-footer-text a {
+      color: var(--orange-light);
+      text-decoration: none;
+    }
+
+    /* ── MAIN CONTENT ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--mid-gray);
+      padding: 1rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topbar-badge {
+      background: var(--orange-bg);
+      border: 1px solid rgba(203,82,30,0.3);
+      color: var(--orange);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    .topbar-date {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+
+    /* ── HERO BANNER ── */
+    .page-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 4rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 400px; height: 100%;
+      background: linear-gradient(to left, rgba(203,82,30,0.12), transparent);
+    }
+
+    .page-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--orange);
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(203,82,30,0.2);
+      border: 1px solid rgba(203,82,30,0.4);
+      color: var(--orange-light);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 3px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 5px; height: 5px;
+      background: var(--orange);
+      border-radius: 50%;
+    }
+
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      max-width: 700px;
+    }
+
+    .page-hero h1 span { color: var(--orange-light); }
+
+    .page-hero p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.75;
+      max-width: 620px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .hero-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    /* ── CONTENT AREA ── */
+    .content-area {
+      padding: 3rem;
+      max-width: 900px;
+    }
+
+    /* ── SECTIONS ── */
+    .playbook-section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 80px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 2px solid var(--mid-gray);
+    }
+
+    .step-badge {
+      width: 48px;
+      height: 48px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .section-header-text {}
+
+    .section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 0.3rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    /* ── PROSE ── */
+    .prose p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text-mid);
+      margin-bottom: 1.25rem;
+    }
+
+    .prose p strong { color: var(--text-dark); font-weight: 600; }
+
+    .prose p em { color: var(--text-mid); font-style: italic; }
+
+    /* ── CALLOUT BOXES ── */
+    .callout {
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid;
+    }
+
+    .callout-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-text {
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .callout.master {
+      background: var(--orange-bg);
+      border-color: var(--orange);
+    }
+    .callout.master .callout-label { color: var(--orange); }
+    .callout.master .callout-text { color: #5a2a0a; }
+
+    .callout.warning {
+      background: var(--red-bg);
+      border-color: var(--red);
+    }
+    .callout.warning .callout-label { color: var(--red); }
+    .callout.warning .callout-text { color: #5a0a0a; }
+
+    .callout.tip {
+      background: var(--green-bg);
+      border-color: var(--green);
+    }
+    .callout.tip .callout-label { color: var(--green); }
+    .callout.tip .callout-text { color: #0a3a0a; }
+
+    .callout.info {
+      background: var(--blue-bg);
+      border-color: var(--blue);
+    }
+    .callout.info .callout-label { color: var(--blue); }
+    .callout.info .callout-text { color: #0a1a5a; }
+
+    /* ── NUMBERED LIST ── */
+    .step-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-list li {
+      display: flex;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--light-gray);
+      align-items: flex-start;
+    }
+
+    .step-list li:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-content {}
+
+    .step-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 0.2rem;
+    }
+
+    .step-desc {
+      font-size: 0.83rem;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    /* ── TOOL CARDS ── */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tool-card {
+      background: var(--white);
+      border: 1px solid var(--mid-gray);
+      border-top: 3px solid var(--orange);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+
+    .tool-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+
+    .tool-purpose {
+      font-size: 0.78rem;
+      color: var(--text-mid);
+      line-height: 1.6;
+      margin-bottom: 0.6rem;
+    }
+
+    .tool-example {
+      font-size: 0.72rem;
+      color: var(--orange);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* ── ARCHITECTURE CARDS ── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .arch-card {
+      background: var(--white);
+      border: 1px solid var(--mid-gray);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .arch-card-header {
+      background: var(--navy);
+      padding: 1rem 1.25rem;
+    }
+
+    .arch-card-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 0.3rem;
+    }
+
+    .arch-card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .arch-card-body {
+      padding: 1.25rem;
+    }
+
+    .arch-row {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--light-gray);
+      font-size: 0.82rem;
+    }
+
+    .arch-row:last-child { border-bottom: none; }
+
+    .arch-key {
+      font-weight: 600;
+      color: var(--text-light);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      width: 80px;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .arch-val { color: var(--text-dark); line-height: 1.5; }
+
+    /* ── RULE TABLE ── */
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .rule-table th {
+      background: var(--navy);
+      color: white;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .rule-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--mid-gray);
+      color: var(--text-mid);
+      vertical-align: top;
+    }
+
+    .rule-table tr:last-child td { border-bottom: none; }
+    .rule-table tr:nth-child(even) td { background: var(--off-white); }
+
+    .rule-table td:first-child {
+      font-weight: 600;
+      color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    .tag-do {
+      display: inline-block;
+      background: var(--green-bg);
+      color: var(--green);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    .tag-dont {
+      display: inline-block;
+      background: var(--red-bg);
+      color: var(--red);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: var(--navy);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .code-block-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.75rem;
+    }
+
+    .code-block code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.88);
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .code-block code .c-orange { color: var(--orange-light); }
+    .code-block code .c-green  { color: #81c995; }
+    .code-block code .c-gray   { color: rgba(255,255,255,0.4); }
+
+    /* ── SECTION FLOW ── */
+    .flow-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--mid-gray);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .flow-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--mid-gray);
+    }
+
+    .flow-item:last-child { border-bottom: none; }
+
+    .flow-arrow {
+      background: var(--off-white);
+      text-align: center;
+      padding: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      border-bottom: 1px solid var(--mid-gray);
+    }
+
+    .flow-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--orange);
+      background: var(--orange-bg);
+      padding: 3px 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .flow-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .flow-desc {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin-left: auto;
+    }
+
+    /* ── COLOR SWATCHES ── */
+    .swatch-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--white);
+      border: 1px solid var(--mid-gray);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+    }
+
+    .swatch-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .swatch-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .swatch-hex {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-light);
+    }
+
+    /* ── EXAMPLES BAR ── */
+    .examples-bar {
+      background: var(--navy);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .example-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .example-type {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 0.4rem;
+    }
+
+    .example-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.3rem;
+    }
+
+    .example-arch {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .example-link {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-size: 0.7rem;
+      color: var(--orange-light);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .example-link:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--orange), transparent);
+      margin: 3rem 0;
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      background: var(--navy);
+      padding: 2rem 3rem;
+      margin-left: 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .footer-brand {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .footer-brand strong {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-contact {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.4);
+      text-align: right;
+    }
+
+    .footer-contact a {
+      color: var(--orange-light);
+      text-decoration: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      #sidebar { display: none; }
+      #main { margin-left: 0; }
+      .content-area { padding: 2rem 1.5rem; }
+      .topbar { padding: 1rem 1.5rem; }
+      .page-hero { padding: 3rem 1.5rem; }
+      .tool-grid, .arch-grid { grid-template-columns: 1fr; }
+      .examples-bar { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .footer-contact { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── SIDEBAR ── -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-row">
+        <div class="sidebar-logo-mark">P</div>
+        <div class="sidebar-brand">
+          PIER Commercial
+          <span>Hermes Agent Playbook</span>
+        </div>
+      </div>
+      <div class="sidebar-tag">Agent Reference v1.0</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Introduction</div>
+      <a href="#intro" class="nav-item active">
+        <span class="nav-step">→</span>
+        Overview & Purpose
+      </a>
+
+      <div class="nav-group-label">Workflow Steps</div>
+      <a href="#step1" class="nav-item">
+        <span class="nav-step">1</span>
+        Raw Data Intake
+      </a>
+      <a href="#step2" class="nav-item">
+        <span class="nav-step">2</span>
+        Research & Enrichment
+      </a>
+      <a href="#step3" class="nav-item">
+        <span class="nav-step">3</span>
+        Copywriting Strategy
+      </a>
+      <a href="#step4" class="nav-item">
+        <span class="nav-step">4</span>
+        Layout & Design Rules
+      </a>
+      <a href="#step5" class="nav-item">
+        <span class="nav-step">5</span>
+        Deployment & URLs
+      </a>
+
+      <div class="nav-group-label">Reference</div>
+      <a href="#examples" class="nav-item">
+        <span class="nav-step">↗</span>
+        Live Examples
+      </a>
+      <a href="#pitfalls" class="nav-item">
+        <span class="nav-step">!</span>
+        Common Pitfalls
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        PIER Commercial Real Estate<br>
+        <a href="mailto:ryan@piercommercial.com">ryan@piercommercial.com</a><br>
+        912-239-6298
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main id="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title">PIER Offering Site — Build Playbook</div>
+      <div class="topbar-meta">
+        <span class="topbar-badge">For Hermes</span>
+        <span class="topbar-date">Updated June 2026</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="page-hero">
+      <div class="hero-eyebrow">Agent-to-Agent Workflow Guide</div>
+      <h1>PIER Commercial<br><span>Website Build Process</span></h1>
+      <p>Hello Hermes. This playbook details the exact workflow used to build high-end, public-facing offering websites for PIER Commercial Real Estate. Follow these steps to autonomously generate deal sites that match the quality of the Abercorn, YMCA, and Williams Street examples.</p>
+      <div class="hero-pills">
+        <span class="hero-pill">Data Intake</span>
+        <span class="hero-pill">Market Research</span>
+        <span class="hero-pill">Copywriting</span>
+        <span class="hero-pill">HTML / React Layout</span>
+        <span class="hero-pill">GitHub Deployment</span>
+        <span class="hero-pill">Custom Subdomain Routing</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+
+      <!-- INTRO -->
+      <section id="intro" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">→</div>
+          <div class="section-header-text">
+            <div class="section-label">Introduction</div>
+            <div class="section-title">Overview & Purpose</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>A PIER offering site is not a simple property flyer. It is a fully designed, publicly accessible investment website that functions as a digital offering memorandum. It must be authoritative, data-rich, and persuasive — designed to qualify serious buyers and tenants before they ever pick up the phone.</p>
+          <p>Each site follows a consistent five-step process: gather the raw listing data, enrich it with independent market research, write copy that tells an investment story, lay out the page using PIER's design system, and deploy it to a custom subdomain under <strong>piercommercial.com</strong>.</p>
+        </div>
+
+        <div class="examples-bar">
+          <div class="example-card">
+            <div class="example-type">Investment Sale · Medical Office</div>
+            <div class="example-name">6301 Abercorn Street</div>
+            <div class="example-arch">Architecture A — Single-Page HTML</div>
+            <a href="https://6301abercornstreet.piercommercial.com" target="_blank" class="example-link">6301abercornstreet.piercommercial.com ↗</a>
+          </div>
+          <div class="example-card">
+            <div class="example-type">Land / Redevelopment Sale</div>
+            <div class="example-name">Brunswick YMCA</div>
+            <div class="example-arch">Architecture B — React + Vite + Tailwind</div>
+            <a href="#" class="example-link">ymca.piercommercial.com ↗</a>
+          </div>
+          <div class="example-card">
+            <div class="example-type">Office / Flex Lease</div>
+            <div class="example-name">2812 Williams Street</div>
+            <div class="example-arch">Architecture A — Single-Page HTML</div>
+            <a href="#" class="example-link">2812williams.piercommercial.com ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- STEP 1 -->
+      <section id="step1" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">1</div>
+          <div class="section-header-text">
+            <div class="section-label">Step One</div>
+            <div class="section-title">Raw Data Intake & Foundation</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>Before writing any code or copy, you must establish a complete, verified factual baseline. Every piece of data on the site must trace back to a primary source.</p>
+        </div>
+
+        <div class="callout master">
+          <div class="callout-label">Master Source Rule</div>
+          <div class="callout-text">Always treat <strong>Buildout.com</strong> as the absolute single source of truth for all property data. If any data point conflicts with what is in Buildout, Buildout wins. Do not use a figure from a news article or county record if it contradicts the active Buildout listing.</div>
+        </div>
+
+        <div class="prose">
+          <p>Collect the following fields before writing a single line of HTML or copy:</p>
+        </div>
+
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">Address & Location</div>
+              <div class="step-desc">Full street address, City, State, Zip, and County. This becomes the page title, the CNAME subdomain, and the hero headline.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">Parcel ID (PARID)</div>
+              <div class="step-desc">The county tax assessor parcel identifier. Used to cross-reference GIS data, assessed value, and lot boundaries. Example: Chatham County <code>20143-01002</code>, Glynn County <code>03-10768</code>.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">Physical Specifications</div>
+              <div class="step-desc">Total SF (always display as <code>+-XX,XXX SF</code>), acreage, year built, number of stories, construction type (masonry, tilt-wall, wood frame), and parking count.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">Financial Data</div>
+              <div class="step-desc">Asking price or lease rate, 2025 county assessed/appraised value, and annual property taxes. For leases, note the lease type (NNN, Gross, Modified Gross).</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <div class="step-content">
+              <div class="step-title">Zoning & Entitlements</div>
+              <div class="step-desc">Current zoning code (e.g., B-C, B-N, MR, GC), by-right permitted uses, any conditional uses, and FEMA flood zone designation.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">6</span>
+            <div class="step-content">
+              <div class="step-title">Images & Assets</div>
+              <div class="step-desc">Collect all available property photos from Buildout. Never use AI-generated photos. Capture a Google Maps aerial screenshot with the site boundary outlined. Obtain the PIER logo from <code>/home/ubuntu/upload/Brokeragetransp.png</code>.</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="callout warning">
+          <div class="callout-label">Public Site Exclusion Rule</div>
+          <div class="callout-text">You MUST strip these items from every public-facing site: <strong>Listing Agreements</strong> (commission, broker terms, protection period), <strong>Broker Opinions of Value / BOV</strong> (pricing ranges, value analysis), <strong>Buyer Target Lists</strong>, and any internal broker strategy notes. Run a grep check before publishing: <code>grep -n "listing-agreement|BOV|Buyer Target|Commission" index.html</code></div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- STEP 2 -->
+      <section id="step2" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">2</div>
+          <div class="section-header-text">
+            <div class="section-label">Step Two</div>
+            <div class="section-title">Research & Data Enrichment</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>A PIER offering site does not merely list facts — it <em>sells</em> the location. The raw Buildout data tells you what the property is. Your research tells the reader why it matters. You must independently verify and enrich every site with market data, demographic context, and local growth narrative.</p>
+        </div>
+
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="tool-name">AlphaMap / Esri / U.S. Census</div>
+            <div class="tool-purpose">Pull 1-mile, 3-mile, and 5-mile demographic rings: Total Population, Total Households, Average HH Income, Average Age, Average Home Value, and Persons per Household.</div>
+            <div class="tool-example">Example: Williams Street — 83,318 residents within 3 miles, avg HH income $79,217 (AlphaMap).</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Cushman & Wakefield MarketBeat</div>
+            <div class="tool-purpose">Query the most recent quarterly office, retail, or industrial MarketBeat report for the specific submarket. Extract current vacancy rate, average asking rent (NNN vs. Gross), and absorption trends.</div>
+            <div class="tool-example">Example: Williams Street — Savannah office vacancy 4.6%, avg asking rent $35.00/SF Gross (C&W Q2 2025).</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">LoopNet / CommercialCafe</div>
+            <div class="tool-purpose">Find 3-5 current comparable listings in the same submarket and property type to build a competitive comparison table showing how the PIER listing stacks up.</div>
+            <div class="tool-example">Example: Williams Street comparison grid showing PIER's $23.85/SF NNN vs. Class A downtown at $35.70–$39.84/SF Gross.</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">County GIS / Tax Assessor</div>
+            <div class="tool-purpose">Verify PARID, 2025 assessed value, lot dimensions, and exact acreage. Cross-check against Buildout. Also check for any active rezoning petitions or variance applications on the parcel.</div>
+            <div class="tool-example">Example: Glynn County PARID 03-10768 — 10.00 acres, last sold Dec. 2011 for $698,112.</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Local News & Infrastructure Search</div>
+            <div class="tool-purpose">Search for recent capital investments, road projects, major retail/industrial openings, or rezoning activity within 3 miles of the property. This becomes the "Market in Motion" narrative section.</div>
+            <div class="tool-example">Example: YMCA site — Buc-ee's at Exit 42 (Q2 2025), Hillpointe 500K SF distribution center, $100M+ corridor investment.</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Autodesk / RSMeans / Gordian</div>
+            <div class="tool-purpose">For investment sale sites, pull current construction cost per SF for the property type to calculate replacement cost and demonstrate the discount-to-replacement-cost investment thesis.</div>
+            <div class="tool-example">Example: Abercorn — National medical office avg $498/SF replacement cost (Autodesk/Cumming, May 2025).</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-label">Research Depth Guideline</div>
+          <div class="callout-text">Use a minimum of 8 independent sources for a standard listing. For major institutional or land sites, target 20+ sources. Always separate confirmed facts from inferences, and note when data is estimated vs. verified. Include source name, URL, and date in the site's footer disclaimer.</div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- STEP 3 -->
+      <section id="step3" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">3</div>
+          <div class="section-header-text">
+            <div class="section-label">Step Three</div>
+            <div class="section-title">Copywriting & Content Strategy</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>Write all copy in the <strong>"Golden Isles Prestige" tone</strong>: authoritative, corporate, and persuasive. Avoid encyclopedic dryness. Every sentence should either prove the investment thesis or advance the reader toward contacting Ryan. Avoid em-dashes in narrative descriptions.</p>
+        </div>
+
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">The Hook — Hero Section</div>
+              <div class="step-desc">Distill the entire offering into one powerful sentence that appears as the hero subtitle. Lead with the irreplaceable quality of the location or tenant. Example: <em>"15,992 SF purpose-built medical office on Savannah's primary north-south business corridor — flanked by two major hospital systems, with income in place from HCA Healthcare."</em></div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">The Investment Thesis — Overview Section</div>
+              <div class="step-desc">Explain why this property matters beyond its specs. Highlight what makes it irreplaceable: the signalized corner, the high-credit tenant, the by-right density, the supply/demand imbalance. This is the "why buy" argument.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">The Data — Spec Table</div>
+              <div class="step-desc">Present raw data in a clean two-column spec table. Key metrics (SF, price, zoning, year built) should be displayed with the value in <strong>PIER orange</strong> using the <code>highlight</code> class. Use <code>+-</code> prefix on all SF figures.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">The Proof — Market & Demographics</div>
+              <div class="step-desc">Use the enriched research data to prove the thesis. For retail/office leases: show demographic rings and traffic counts. For investment sales: show market vacancy, comparable rents, and replacement cost. For land: show housing shortage data and recent capital investment.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <div class="step-content">
+              <div class="step-title">Pricing Logic</div>
+              <div class="step-desc">For investment sales (default): use "Pricing Available Upon Request" language to drive lead capture. For leases: state the exact rate (e.g., $23.85/SF/Yr NNN). Never display a price on a public sale site without Ryan's explicit instruction.</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="callout info">
+          <div class="callout-label">Pricing Withheld Language</div>
+          <div class="callout-text">"This property is offered for sale at a price to be disclosed to qualified buyers. To receive pricing information and the full offering memorandum, please contact the exclusive listing broker."</div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- STEP 4 -->
+      <section id="step4" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">4</div>
+          <div class="section-header-text">
+            <div class="section-label">Step Four</div>
+            <div class="section-title">Layout Logic & Design Rules</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>Choose one of two build architectures based on the complexity and prestige level of the listing. Both architectures share the same PIER brand system and section structure.</p>
+        </div>
+
+        <div class="arch-grid">
+          <div class="arch-card">
+            <div class="arch-card-header">
+              <div class="arch-card-label">Architecture A — Standard</div>
+              <div class="arch-card-title">Single-Page HTML</div>
+            </div>
+            <div class="arch-card-body">
+              <div class="arch-row">
+                <span class="arch-key">Use For</span>
+                <span class="arch-val">Standard sales, leases, flex/office, retail</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Examples</span>
+                <span class="arch-val">6301 Abercorn, 2812 Williams St</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Stack</span>
+                <span class="arch-val">Pure HTML + CSS + Vanilla JS (no framework)</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Fonts</span>
+                <span class="arch-val">Playfair Display (headings), Inter (body)</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Images</span>
+                <span class="arch-val">Stored in <code>web_images/</code> folder in repo root</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Deploy</span>
+                <span class="arch-val">GitHub Pages from <code>main</code> branch + CNAME file</span>
+              </div>
+            </div>
+          </div>
+          <div class="arch-card">
+            <div class="arch-card-header">
+              <div class="arch-card-label">Architecture B — Institutional</div>
+              <div class="arch-card-title">React + Vite + Tailwind</div>
+            </div>
+            <div class="arch-card-body">
+              <div class="arch-row">
+                <span class="arch-key">Use For</span>
+                <span class="arch-val">Large land, institutional, complex multi-section sites</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Examples</span>
+                <span class="arch-val">Brunswick YMCA (10-acre redevelopment)</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Stack</span>
+                <span class="arch-val">React 19 + Vite + Tailwind 4 + shadcn/ui</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Fonts</span>
+                <span class="arch-val">Cormorant Garamond (headings), Lato (body)</span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Images</span>
+                <span class="arch-val">CDN URLs via <code>manus-upload-file --webdev</code></span>
+              </div>
+              <div class="arch-row">
+                <span class="arch-key">Deploy</span>
+                <span class="arch-val">webdev_save_checkpoint → Publish button in UI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p><strong>Standard Section Order</strong> — both architectures follow this sequence:</p>
+        </div>
+
+        <div class="flow-list">
+          <div class="flow-item">
+            <span class="flow-id">#hero</span>
+            <span class="flow-name">Hero</span>
+            <span class="flow-desc">Full-viewport image/video, address title, stats bar, CTA buttons</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#overview</span>
+            <span class="flow-name">Property Overview</span>
+            <span class="flow-desc">Investment thesis narrative + spec table (two-column layout)</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#highlights</span>
+            <span class="flow-name">Investment Highlights</span>
+            <span class="flow-desc">3-column card grid, orange top-border accent, key selling points</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#gallery</span>
+            <span class="flow-name">Photo Gallery</span>
+            <span class="flow-desc">3-column grid with featured span-2 hero image, lightbox on click</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#location</span>
+            <span class="flow-name">Location & Context</span>
+            <span class="flow-desc">Google Maps embed + neighbor/amenity list with orange dot markers</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#market</span>
+            <span class="flow-name">Market & Demographics</span>
+            <span class="flow-desc">3-column demographic ring cards + market comparables table</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">
+            <span class="flow-id">#contact</span>
+            <span class="flow-name">Contact</span>
+            <span class="flow-desc">Orange background section, white broker card, Ryan's contact details</span>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p><strong>PIER Brand Color System:</strong></p>
+        </div>
+
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch-dot" style="background:#CB521E;"></div>
+            <div>
+              <div class="swatch-name">PIER Orange</div>
+              <div class="swatch-hex">--orange: #CB521E</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background:#0d1b2a;"></div>
+            <div>
+              <div class="swatch-name">Navy Dark</div>
+              <div class="swatch-hex">--navy: #0d1b2a</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background:#f8f6f3; border:1px solid #ddd;"></div>
+            <div>
+              <div class="swatch-name">Off White</div>
+              <div class="swatch-hex">--off-white: #f8f6f3</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-dot" style="background:#a84218;"></div>
+            <div>
+              <div class="swatch-name">Orange Dark</div>
+              <div class="swatch-hex">--orange-dark: #a84218</div>
+            </div>
+          </div>
+        </div>
+
+        <table class="rule-table">
+          <thead>
+            <tr>
+              <th>Design Element</th>
+              <th>Rule</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PIER Logo</td>
+              <td>Use <code>Brokeragetransp.png</code>. Place on dark semi-transparent background. Never apply CSS filters (brightness, invert) — the PNG is already orange on transparent.</td>
+              <td><span class="tag-dont">No Filter</span></td>
+            </tr>
+            <tr>
+              <td>Section Identifiers</td>
+              <td>Never use emoji or icon libraries as section markers. Use orange bullets, thin orange horizontal rules, or typographic hierarchy only.</td>
+              <td><span class="tag-dont">No Icons</span></td>
+            </tr>
+            <tr>
+              <td>Stats Bar</td>
+              <td>Must appear immediately below the hero section. Contains 4-5 key metrics in bordered boxes on a solid orange background.</td>
+              <td><span class="tag-do">Required</span></td>
+            </tr>
+            <tr>
+              <td>Heading Wrap</td>
+              <td>All heading text must autosize to fit on a single line. Prevent wrapping to a second line using <code>clamp()</code> or <code>white-space: nowrap</code> where needed.</td>
+              <td><span class="tag-do">Required</span></td>
+            </tr>
+            <tr>
+              <td>SF Display</td>
+              <td>Always display square footage with a <code>+-</code> prefix (e.g., <code>+-15,992 SF</code>) to indicate approximate measurement.</td>
+              <td><span class="tag-do">Required</span></td>
+            </tr>
+            <tr>
+              <td>Photos</td>
+              <td>Never use AI-generated photos. Use only actual property photos from Buildout or verified aerial/street imagery from Google Maps.</td>
+              <td><span class="tag-dont">No AI Photos</span></td>
+            </tr>
+            <tr>
+              <td>Maps</td>
+              <td>Always use a real street map (Google Maps embed or screenshot). Always include the PIER logo in the map caption or overlay.</td>
+              <td><span class="tag-do">Required</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- STEP 5 -->
+      <section id="step5" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">5</div>
+          <div class="section-header-text">
+            <div class="section-label">Step Five</div>
+            <div class="section-title">Deployment & URL Setup</div>
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>All PIER offering sites are hosted on GitHub under the <strong>ryantschneider-dotcom</strong> organization and served via GitHub Pages or Vercel. Custom subdomains under <code>piercommercial.com</code> are mapped using a CNAME file in the repository root.</p>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-label">URL Naming Convention</div>
+          <div class="callout-text">Subdomain format: <code>{streetaddress}.piercommercial.com</code><br>
+          Examples: <code>6301abercornstreet.piercommercial.com</code> · <code>2812williams.piercommercial.com</code> · <code>ymca.piercommercial.com</code><br>
+          Keep it short, memorable, and address-based. No hyphens unless the address itself contains one.</div>
+        </div>
+
+        <div class="prose">
+          <p><strong>Architecture A (HTML) — Deployment Steps:</strong></p>
+        </div>
+
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">Create GitHub Repository</div>
+              <div class="step-desc">Create a new private repo under <code>ryantschneider-dotcom</code> using the naming pattern <code>pier-{address}-offering</code> (e.g., <code>pier-6301-abercorn-offering</code>). Use <code>gh repo create --private</code>.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">Create the CNAME File</div>
+              <div class="step-desc">In the repository root, create a file named exactly <code>CNAME</code> (no extension). The file must contain only the target subdomain on a single line, with no trailing slash. Example content: <code>6301abercornstreet.piercommercial.com</code></div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">Place Assets in web_images/</div>
+              <div class="step-desc">Store all property photos, aerial images, floor plans, and PDFs in a <code>web_images/</code> subfolder. Reference them in HTML as relative paths: <code>src="web_images/exterior_front.jpg"</code>.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">Push to Main Branch</div>
+              <div class="step-desc">Commit all files and push to the <code>main</code> branch. GitHub Pages will automatically serve the site from the root <code>index.html</code>.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <div class="step-content">
+              <div class="step-title">Enable GitHub Pages</div>
+              <div class="step-desc">In the repo Settings → Pages, set the source to the <code>main</code> branch, root folder. GitHub will detect the CNAME file and route traffic from the subdomain automatically.</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="prose">
+          <p><strong>Architecture B (React) — Deployment Steps:</strong></p>
+        </div>
+
+        <ul class="step-list">
+          <li>
+            <span class="step-num">1</span>
+            <div class="step-content">
+              <div class="step-title">Initialize with webdev_init_project</div>
+              <div class="step-desc">Use the <code>webdev_init_project</code> tool with scaffold type <code>web-static</code>. Project name pattern: <code>{property-slug}-offering</code>. This registers the project and activates the Publish button in the Management UI.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div class="step-content">
+              <div class="step-title">Upload Images to CDN</div>
+              <div class="step-desc">Run <code>manus-upload-file --webdev /path/to/image.png</code> for every image asset. Use the returned Cloudfront CDN URL in all <code>&lt;img src="..."&gt;</code> tags. Never use local file paths in React builds.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div class="step-content">
+              <div class="step-title">Save Checkpoint</div>
+              <div class="step-desc">Run <code>webdev_save_checkpoint</code> to finalize the build and activate the Publish button in the Management UI header.</div>
+            </div>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div class="step-content">
+              <div class="step-title">Publish & Assign Custom Domain</div>
+              <div class="step-desc">Ryan clicks Publish in the Management UI. Then go to Settings → Domains and assign the custom subdomain (e.g., <code>ymca.piercommercial.com</code>).</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="code-block">
+          <div class="code-block-label">CNAME File — Exact Format</div>
+          <code><span class="c-green"># File: CNAME (no extension, repo root)</span>
+<span class="c-green"># Contains exactly one line — the target subdomain</span>
+
+<span class="c-orange">6301abercornstreet.piercommercial.com</span></code>
+        </div>
+
+        <div class="callout warning">
+          <div class="callout-label">If a Buildout Link Is Not Available</div>
+          <div class="callout-text">If a website link for a listing is not supplied, do not insert a random URL. Replace the missing link with the Buildout listing address. The property ID for the Buildout URL can be obtained from within the building information in Buildout.</div>
+        </div>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- EXAMPLES -->
+      <section id="examples" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">↗</div>
+          <div class="section-header-text">
+            <div class="section-label">Reference</div>
+            <div class="section-title">Live Examples</div>
+          </div>
+        </div>
+
+        <table class="rule-table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Architecture</th>
+              <th>Key Enrichment Used</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>6301 Abercorn Street</td>
+              <td>Investment Sale — Medical Office</td>
+              <td>Architecture A (HTML)</td>
+              <td>Replacement cost (RSMeans), hospital corridor context, HCA tenant credit, Chatham County assessed value</td>
+            </tr>
+            <tr>
+              <td>Brunswick YMCA</td>
+              <td>Land / Redevelopment Sale</td>
+              <td>Architecture B (React)</td>
+              <td>Glynn County housing shortage (9,545 units), Exit 42 corridor $100M investment, by-right MR zoning density, Buc-ee's opening</td>
+            </tr>
+            <tr>
+              <td>2812 Williams Street</td>
+              <td>Office / Flex Lease</td>
+              <td>Architecture A (HTML)</td>
+              <td>AlphaMap demographics (83K residents, $79K income), C&W MarketBeat Q2 2025 vacancy 4.6%, LoopNet comparable rents</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="section-divider"></div>
+
+      <!-- PITFALLS -->
+      <section id="pitfalls" class="playbook-section">
+        <div class="section-header">
+          <div class="step-badge">!</div>
+          <div class="section-header-text">
+            <div class="section-label">Reference</div>
+            <div class="section-title">Common Pitfalls & Fixes</div>
+          </div>
+        </div>
+
+        <table class="rule-table">
+          <thead>
+            <tr>
+              <th>Problem</th>
+              <th>Cause</th>
+              <th>Fix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Logo appears as white squares on light background</td>
+              <td>CSS filter applied to logo image</td>
+              <td>Remove all CSS filters from the logo <code>&lt;img&gt;</code>. The PNG is already orange on transparent. Use a dark backdrop instead.</td>
+            </tr>
+            <tr>
+              <td>Google Maps loads twice (console errors)</td>
+              <td>Duplicate script injection in React</td>
+              <td>Use singleton <code>_mapsScriptPromise</code> pattern. The <code>loadMapScript()</code> function must check if the script is already loaded before injecting.</td>
+            </tr>
+            <tr>
+              <td>Published site shows internal sections</td>
+              <td>Forgot to strip private content before checkpoint</td>
+              <td>Run grep check: <code>grep -n "listing-agreement|BOV|Buyer Target|Commission"</code> before every publish.</td>
+            </tr>
+            <tr>
+              <td>Images missing after React build publish</td>
+              <td>Local file paths used instead of CDN URLs</td>
+              <td>Always run <code>manus-upload-file --webdev</code> for every image. Never use <code>/home/ubuntu/...</code> paths in React code.</td>
+            </tr>
+            <tr>
+              <td>New React site has no Publish button</td>
+              <td>Project not registered via webdev_init_project</td>
+              <td>Must use <code>webdev_init_project</code> to register. Manual <code>pnpm dev</code> copies produce temporary URLs with no Publish button.</td>
+            </tr>
+            <tr>
+              <td>Heading text wraps to second line</td>
+              <td>Fixed font size on long address strings</td>
+              <td>Use <code>font-size: clamp()</code> or <code>white-space: nowrap</code> with <code>overflow: hidden; text-overflow: ellipsis</code> to keep headings on one line.</td>
+            </tr>
+            <tr>
+              <td>AI-generated photo used for listing</td>
+              <td>No photo available from Buildout</td>
+              <td>Request photos from Ryan. Use Google Street View or Maps aerial as a placeholder. Never generate a fake property photo with AI.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div><!-- /content-area -->
+
+    <!-- Footer -->
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <strong>PIER Commercial Real Estate</strong><br>
+          Savannah, GA · Coastal Georgia & Lowcountry SC
+        </div>
+        <div class="footer-contact">
+          Ryan T. Schneider, CCIM · President<br>
+          <a href="mailto:ryan@piercommercial.com">ryan@piercommercial.com</a> · 912-239-6298<br>
+          <a href="https://www.piercommercial.com" target="_blank">www.piercommercial.com</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Active nav highlighting on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navItems.forEach(item => item.classList.remove('active'));
+          const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>
